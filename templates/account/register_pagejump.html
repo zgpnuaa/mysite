@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row text-center vertical-middle-sm">
+    <p>亲爱的{{ name }},您已注册成功！还有<span id="sp">5</span>秒调转到登陆界面...</p>
+</div>
+<script>
+    onload=function(){
+            setInterval(go,1000)
+            };
+    var x=4;
+    function go() {
+                if(x>0) {
+                        document.getElementById("sp").innerText=x;
+                        }else{
+                            location.href="/account/login/";
+                            }
+                            x--;
+                 }
+</script>
+{% endblock %}
+
