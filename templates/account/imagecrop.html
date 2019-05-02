@@ -17,7 +17,7 @@
   <div class="action"> 
     <!-- <input type="file" id="file" style=" width: 200px">-->
     <div class="new-contentarea tc"> <a href="javascript:void(0)" class="upload-img">
-      <label for="upload-file">请选择图片:</label>
+      <label for="upload-file">请选择头像图片:</label>
       </a>
       <input type="file" class="" name="upload-file" id="upload-file" />
     </div>
@@ -69,11 +69,12 @@ $(window).load(function() {
                       }
                 },
                 });
-		 alert("图片上传喽");
+		 alert("头像上传喽");
 
 	})
 	function getImg(){
 		img = cropper.getDataURL();
+		//alert(img);
 		$('.cropped').html('');
 		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:180px;margin-top:4px;border-radius:180px;box-shadow:0px 0px 12px #7E7E7E;"><p>180px*180px</p>');
 		$('.cropped').append('<img src="'+img+'" align="absmiddle" style="width:128px;margin-top:4px;border-radius:128px;box-shadow:0px 0px 12px #7E7E7E;"><p>128px*128px</p>');

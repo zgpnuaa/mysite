@@ -1,10 +1,10 @@
 {% extends "article/base.html" %}
 {% load staticfiles %}
-{% block title %}article column{% endblock %}
+{% block title %}发布文章{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'editor/css/style.css' %} ">
 <link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
-<link rel="stylesheet" href="{% static 'editor/plugins/katex/katex.min.css' %}">
+
 <div style="margin-left:10px">
     <form class="form-horizontal" action="." method="post">{% csrf_token %}
         <div class="row" style="margin-top:10px;">
@@ -21,6 +21,18 @@
                 </select>
             </div>
         </div>
+        <div class="row" style="margin-top: 10px;">
+            <div class="col-md-2 text-right"><span>文章标签：</span></div>
+            <div class="col-md-10 text-left">
+                {% for tag in article_tags %}
+                <label class="checkbox-inline">
+                    <input class="tagcheckbox" type="checkbox" id="{{tag.id}}" name="article_tag" value="{{tag.tag}}">{{tag.tag}}
+                </label>
+                {% empty %}
+                <p>You have not type tags for articles. Please <a href="{% url 'article:article_tag' %}"> input your tags.</a> </p>
+                {% endfor %}
+            </div>
+        </div>
         <div class="row" style="margin-top:10px;">
             <div class="col-md-2 text-right"><span>内容:</span></div>
             <div id="editormd" class="col-md-10 text-left">
@@ -34,22 +46,24 @@
 </div>
 <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
-<script type="text/javascript" src="{% static 'editor/plugins/katex/katex.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/json2.js' %}"></script>
 <script type="text/javascript">
     function publish_article(){
             var title = $("#id_title").val();
             var column_id = $("#which_column").val();
             var body = $("#id_body").val();
+            var article_tags = [];
+            $.each($("input[name='article_tag']:checked"), function(){article_tags.push($(this).val());});
             $.ajax({
                 url: "{% url 'article:article_post' %}",
                 type: "POST",
-                data: {"title":title, "body":body, "column_id":column_id},
+                data: {"title":title, "body":body, "column_id":column_id, "tags":JSON.stringify(article_tags)},
                 success: function(e){
                         if(e=="1"){
-                                layer.msg("successful");
-                                location.href = "{% url 'article:article_list' %}";
+                                layer.msg("successful,发布成功",{icon:1,time:2000,end : function(){location.href = "{% url 'article:article_list' %}";}});
+
                                 }else if(e=="2"){
-                                    layer.msg("sorry");
+                                    layer.msg("sorry，发布失败",{icon:2,time:2000});
                                  }else{
                                     layer.msg("name need to input, it is can be empty.");
                                   }
@@ -57,12 +71,13 @@
                  });
              }
 </script>
-<script type="text/javascript" src="{% static 'editor/editormd.js' %}"></script>
+<script type="text/javascript" src="{% static 'editor/editormd.min.js' %}"></script>
 <script type="text/javascript">
     $(function() {
             var editor = editormd("editormd", {
                 width : "100%",
                 height :640,
+                placeholder : "此处开始编写您要发布的内容...",
                 imageUpload: true,
                 imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                 imageUploadURL : "{% url 'article:blog_img_upload' %}",
@@ -70,11 +85,12 @@
                       console.log('onload', this);
                           },
                 saveHTMLToTextarea : true,
+
                 emoji : true,
                 tex: true,
                 flowChart : true,
                 syncScrolling : "single",
-                codeFold: true,
+                codeFold : true,
                 searchReplace: true,
                 htmlDecode: "style,script,iframe|on*",
                 taskList: true,
@@ -86,6 +102,7 @@
                 {#theme: "dark",#}
                 {#previewTheme: "dark",#}
                });
+               editor.config("syncScrolling", true);
              });
 </script>
 {% endblock %}

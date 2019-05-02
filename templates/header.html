@@ -1,14 +1,14 @@
 {% load staticfiles %}
 
 <div class="container">
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar  navvar-expand-lg navbar-default" role="navigation">
     <div class="navbar-header">
         <a class="navbar-brand" href="http://www.itdiffer.com"><img src="{% static '/images/logo.jpg' %}" width="100px"> </a>
     </div>
     <div>
         <ul class="nav navbar-nav" role="navigation">
-            <li><a href="{% url 'home' %}">HOME</a> </li>
-            <li><a href="{% url 'blog:blog_title' %}">BLOG</a> </li>
+            <li><a href="{% url 'home' %}">主页</a> </li>
+            <li><a href="{% url 'blog:blog_title' %}">博客</a> </li>
             <li><a href="{% url 'article:article_titles' %}">文章</a> </li>
         </ul>
         <ul class="nav navbar-nav navbar-right" style="margin-right:10px">

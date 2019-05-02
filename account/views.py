@@ -7,6 +7,13 @@ from .models import UserProfile, UserInfo
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from article.models import ArticleColumn, ArticlePost
+import random
+from slugify import slugify
+from mysite.settings import MEDIA_ROOT
+import os
+import base64
+from PIL import Image
+from io import BytesIO
 
 
 # Create your views here.
@@ -99,11 +106,34 @@ def myself_edit(request):
 @login_required(login_url='/account/login/')
 def my_image(request):
     if request.method == 'POST':
-        img = request.POST['img']
-        userinfo = UserInfo.objects.get(user=request.user.id)
-        userinfo.photo = img
-        userinfo.save()
-        return HttpResponse("1")
+        img_b64 = request.POST['img']
+        #print(img_b64)
+        img_info = img_b64.split(',')
+        #print(img_info[1])
+        suff = img_info[0].split(';')
+        suff = suff[0].split('/')
+        #print(suff[1])
+        img_b64decode = base64.b64decode(img_info[1])
+        img_data = BytesIO(img_b64decode)
+        img = Image.open(img_data)
+        img.show()
+        url = 'icons/' + slugify(request.user.username) + '-' + 'icon.'+suff[1]
+        print(url)
+        name = MEDIA_ROOT + '/' + url
+        print(name)
+        url_img = '/media/' + url
+        try:
+            img.save(name)
+            userinfo = UserInfo.objects.get(user=request.user.id)
+            userinfo.photo = url_img
+            userinfo.save()
+            return HttpResponse("1")
+        except Exception as e:
+            return HttpResponse("2")
+        #userinfo = UserInfo.objects.get(user=request.user.id)
+        #userinfo.photo = img
+        #userinfo.save()
+        #return HttpResponse("1")
     else:
         return render(request, "account/imagecrop.html")
 

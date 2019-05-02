@@ -3365,13 +3365,13 @@
 
     // Emoji graphics files url path
     editormd.emoji     = {
-        path  : "./plugins/emoji-dialog/emoji/",
+        path  : "/static/editor/plugins/emoji-dialog/emoji/",
         ext   : ".png"
     };
 
     // Twitter Emoji (Twemoji)  graphics files url path    
     editormd.twemoji = {
-        path : "http://twemoji.maxcdn.com/36x36/",
+        path : "/static/editor/plugins/emoji-dialog/36x36/",
         ext  : ".png"
     };
 
@@ -4179,8 +4179,8 @@
     // 使用国外的CDN，加载速度有时会很慢，或者自定义URL
     // You can custom KaTeX load url.
     editormd.katexURL  = {
-        css : "./plugins/katex/katex.min.css",
-        js  : "./plugins/katex/katex.min.js"
+        css : "./plugins/katex/katex.min",
+        js  : "./plugins/katex/katex.min"
     };
     
     editormd.kaTeXLoaded = false;

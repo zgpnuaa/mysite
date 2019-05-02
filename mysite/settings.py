@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'blog',
     'account',
     'password_reset',
-    'article'
+    'article',
+    'image',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +80,14 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'db_mydjango',
+        'USER': 'zgpnuaa',
+        'PASSWORD': 'Zgp210317.',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 
@@ -129,12 +136,15 @@ STATICFILES_DIRS = (
 )
 
 LOGIN_REDIRECT_URL = '/home/'
-
+LOGIN_URL = '/account/login/'
 
 # 配置邮件发送服务器
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_HOST_USER = "zgpnuaa@163.com"
+# 此处的密码为163邮箱的客户端授权码，而非邮箱登录密码
+# 授权码是用于登录第三方邮件客户端的专用密码。
+# 适用于登录以下服务: POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务
 EMAIL_HOST_PASSWORD = "zgp317210"
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
@@ -142,6 +152,9 @@ DEFAULT_FROM_EMAIL = "zgpnuaa@163.com"
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media', )
 
 
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0

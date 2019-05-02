@@ -1,17 +1,24 @@
 {% extends "base.html" %}
-{% block title %}articles{% endblock %}
+{% load staticfiles %}
+{% load article_tags %}
+{% block title %}文章列表{% endblock %}
 {%block content %}
+
 <div class="row text-center vertical-middle-sm">
     <h1>阅读，丰富头脑，善化行为</h1>
+    <p>这里已经有{% total_articles %}篇文章供你阅读：</p>
 </div>
+<link href="{% static 'css/fontawesome-free-5.8.1-web/css/all.min.css' %}" rel="stylesheet">
 <div class="container">
     {% for article in articles %}
-    <div class="list-group">
+    <div class="list-group-item" style="margin-top:15px;border-top-left-radius:10px;border-top-right-radius:10px;border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
         <a href="{{article.get_url_path}}" class="list-group-item active">
             <h4 class="list-group-item-heading">{{article.title}}</h4>
-            <p class="list-group-item-text">作者：{{article.author.username}}</p>
-            <p class="list-group-item-text">概要：{{article.body|slice:'70'|linebreaks}}</p>
         </a>
+        <p class="list-group-item-text" style="margin-top:10px">作者：<a href="{% url 'article:author_articles' article.author.username %}">{{article.author.username}}</a></p>
+        <p class="list-group-item-text" style="margin-top:10px">概要：{{article.body|slice:'70'|linebreaks}}</p>
+        <p class="list-group-item-text text-muted" style="margin-top:10px"> <span style="margin-left: 20px"><i style="margin-right:8px;" class="fas fa-eye"></i>{% dict_template all_views article %}<i style="margin-left:20px;margin-right:8px" class="fas fa-comments"><i style="margin-left:8px;">{% dict_template all_comments article %}</i></i></span><span style="margin-left:20px"><i style="margin-right:8px" class="fas fa-thumbs-up"></i>{{article.users_like.count}}</span><i class="fas fa-clock" style="margin-left: 20px"><i style="margin-left:8px">{{article.created}}</i></i><i class="fas fa-bookmark" style="margin-left: 20px"><i style="margin-left:8px">{{article.column.column}}</i></i></p>
+
     </div>
     {% endfor %}
     {% include "paginator.html" %}

@@ -1,6 +1,6 @@
 {% extends "article/base.html" %}
 {% load staticfiles %}
-{% block title %} articles list {% endblock %}
+{% block title %}文章详情{% endblock %}
 {% block content %}
 <div>
     <header>
@@ -21,7 +21,7 @@
 <script src='{% static "editor/lib/sequence-diagram.min.js" %}'></script>
 <script src='{% static "editor/lib/flowchart.min.js" %}'></script>
 <script src='{% static "editor/lib/jquery.flowchart.min.js" %}'></script>
-<script src='{% static "editor/editormd.js" %}'></script>
+<script src='{% static "editor/editormd.min.js" %}'></script>
 <script type="text/javascript">
     $(function(){
             editormd.markdownToHTML("editormd-view", {

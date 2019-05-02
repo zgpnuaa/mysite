@@ -28,4 +28,5 @@ urlpatterns = [
     path('home/', TemplateView.as_view(template_name="home.html"), name='home'),
     # set URL for files in media
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    path('image/', include('image.urls', namespace='image')),
 ]

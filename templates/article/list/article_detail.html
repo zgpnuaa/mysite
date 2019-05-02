@@ -1,17 +1,134 @@
 {% extends "article/base.html" %}
+{% load article_tags %}
 {% load staticfiles %}
-{% block title %} articles list {% endblock %}
+{% block title %}文章详情{% endblock %}
 {% block content %}
-<div>
-    <header>
-        <h1>{{article.title }}</h1>
-        <p>{{user.username}}</p>
-    </header>
-    <link rel="stylesheet" href="{% static 'editor/css/editormd.preview.css' %}">
-    <div id="editormd-view">
-        <textarea id="append-test" style="display:none;">{{article.body}}</textarea>
+{% with total_likes=article.users_like.count users_like=article.users_like.all %}
+
+
+<link rel="stylesheet" href="{% static 'editor/css/style.css' %} ">
+<link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
+<link rel="stylesheet" type="text/css" href='{% static "css/bootstrap.css" %}'>
+<link href="{% static 'css/fontawesome-free-5.8.1-web/css/all.min.css' %}" rel="stylesheet">
+
+<div class="container">
+    <div class="col-md-9" style="border-left:1px solid 	#D3D3D3;border-right:1px solid 	#D3D3D3;border-top:1px solid 	#D3D3D3;border-bottom:1px solid 	#D3D3D3">
+        <div>
+            <header>
+                <h1>{{article.title }}</h1>
+                <p class="text-muted"><a href="{% url 'article:author_articles' article.author.username %}">{{article.author.username}}</a><span style="margin-left:20px"><i style="margin-right:8px" class="fas fa-clock">{{article.created}}</i><i style="margin-left:8px;margin-right:8px" class="fas fa-thumbs-up"></i>{{total_likes}}</span> <span style="margin-left: 20px"><i style="margin-right:8px;" class="far fa-eye"></i>{{total_views}}</span> </p>
+
+                <p><span style="margin-right:10px"><strong>Tags:</strong></span>{{article.article_tag.all | join:","}} </p>
+                <hr>
+            </header>
+            <link rel="stylesheet" href="{% static 'editor/css/editormd.preview.css' %}">
+
+            <div id="editormd-view" class="comments_content">
+                <textarea id="append-test" style="display:none;">{{article.body}}</textarea>
+            </div>
+            <div>
+                <p class="text-center">
+                    <a onclick="like_article({{article.id}},'like')" href="#"><span class="glyphicon glyphicon-thumbs-up">like</span> </a>
+                    <a onclick="like_article({{article.id}}, 'unlike')" href="#"><span style="margin-left: 15px;" class="glyphicon glyphicon-thumbs-down">unlike</span> </a>
+                </p>
+            </div>
+            <div>
+                <p class="text-center"><strong>点赞本文的读者：</strong>
+                {% for user in article.users_like.all %}
+                    <span class="text-center">{{user.username}},</span>
+                {% empty %}
+                    <p class="text-center">还没有人对此文章表态</p>
+                {% endfor %}
+                </p>
+            </div>
+            <hr>
+                <div id="w3" style="margin-bottom:60px" class="reply-form " action="." method="post">
+
+                    <div id="reply-content" class="form-group field-answer-reply-content required">
+                        <textarea style="display:none;" id="reply-content-body" ></textarea>
+                    </div>
+                    <div class="form-group" style="float:right">
+                        <button id="comment-submit" type="submit" class="btn btn-sm btn-primary" onclick="parent_comment()" >评论</button>
+                    </div>
+                </div>
+
+            <hr>
+            <p>共<b>{{num_comments}}</b>条评论 </p>
+            <hr>
+            <link rel="stylesheet" href="{% static 'editor/css/editormd.preview.css' %}">
+            {% tree comment_dic %}
+            {% include "paginator.html" %}
+            <hr>
+            <!--
+            <div>
+                <h3><span class="glyphicon glyphicon-bullhorn"></span>This article has {{article.comments.count}} comments. </h3>
+                {% for comment in article.comments.all %}
+                <div>
+                    <p><strong>{{ comment.commentator }}</strong> say:</p>
+                    <p style="margin-left:40px;">{{comment.body}}</p>
+                </div>
+                {% empty %}
+                <p>No Comment.</p>
+                {% endfor %}
+
+                <h3><span class="glyphicon glyphicon-send"></span>See the article, and comment, don't be silent. </h3>
+                <form action="." method="post" class="form-horizontal" role="form">{% csrf_token %}
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-md-2 control-label">Commentator:</label>
+                        <div class="col-md-10">
+                            {{ comment_form.commentator }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputEmail3" class="col-md-2 control-label">Comment:</label>
+                        <div class="col-md-10">
+                            {{ comment_form.body }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <p><input type="submit" name="" value="Publish Comment" class="btn btn-primary"> </p>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+            -->
+        </div>
+    </div>
+    <div class="col-md-3">
+        <p class="text-center"><h3>最受欢迎的文章:</h3></p>
+        <ol>
+            {% for article_rank in most_viewed %}
+            <li>
+                <a href="{{article_rank.get_url_path}}">{{article_rank.title}}</a>
+            </li>
+            {% endfor %}
+        </ol>
+        <hr>
+        <p class="text-center"><h3>最新文章：</h3></p>
+        {% latest_articles 6 %}
+        <hr>
+        <p class="text-center"><h3>评论最多的文章：</h3></p>
+        {% most_commented_articles as most_comments %}
+        <ul>
+            {% for comment_article in most_comments %}
+            <li>
+                <a href="{{comment_article.get_url_path}}">{{comment_article.title}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <hr>
+        <p class="text-center"><h3>推荐相似的文章：</h3></p>
+        {% for similar in similar_articles %}
+        <p><a href="{{similar.get_url_path}}">{{similar.title}}</a> </p>
+        {% empty %}
+        <p>Sorry, 没有相似的文章</p>
+        {% endfor %}
     </div>
 </div>
+
 
 <script src='{% static "js/jquery.js" %}'></script>
 <script src='{% static "editor/lib/marked.min.js" %}'></script>
@@ -21,18 +138,213 @@
 <script src='{% static "editor/lib/sequence-diagram.min.js" %}'></script>
 <script src='{% static "editor/lib/flowchart.min.js" %}'></script>
 <script src='{% static "editor/lib/jquery.flowchart.min.js" %}'></script>
-<script src='{% static "editor/editormd.js" %}'></script>
+<script src='{% static "editor/editormd.min.js" %}'></script>
+
+<script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+
 <script type="text/javascript">
-    $(function(){
-            editormd.markdownToHTML("editormd-view", {
-            htmlDecode : "style,script,iframe",
-            emoji : true,
-            taskList : true,
-            tex : true,
-            flowChart : true,
-            sequenceDiagram : true,
-            codeFold: true
-           });
-       });
+
+        $(function(){
+            $("div.comments_content").each(
+
+               function(){
+                        var id = $(this).attr('id');
+                        var dic = {
+                        htmlDecode : "style,script,iframe",
+                        emoji : true,
+                        taskList : true,
+                        tex : true,
+                        flowChart : true,
+                        sequenceDiagram : true,
+                        codeFold: true,
+                            }
+                        //alert(id);
+                        editormd.markdownToHTML(id, dic);
+                           });
+              });
+
+    function like_article(id, action){
+        $.ajax({
+                url: "{% url 'article:like_article' %}",
+                type: "POST",
+                data: {"id":id, "action":action },
+                success: function(e){
+                        if(e=="1"){
+                        layer.msg("感谢点赞",{icon:6,time:1000,end: function(){window.location.reload();}});
+
+                        }else if(e=="2") {
+                        layer.msg("我会继续努力", {icon:5,time:1000,end: function(){ window.location.reload();}});
+
+                        }else {
+                        layer.msg("请先登陆", {icon:7,time:1000,end: function(){ location.href = "{% url 'article:like_article' %}"}});
+                        }
+                     },
+                });
+            }
+        function like_comment(id, action){
+        $.ajax({
+                url: "{% url 'article:like_comment' %}",
+                type: "POST",
+                data: {"comment_id":id, "action":action },
+                success: function(e){
+                        if(e=="1"){
+                        layer.msg("感谢点赞",{icon:6,time:1000,end: function(){window.location.reload();}});
+
+                        }else if(e=="2") {
+                        layer.msg("我会继续努力", {icon:5,time:1000,end: function(){ window.location.reload();}});
+
+                        }else {
+                        layer.msg("请先登陆", {icon:7,time:1000,end: function(){ location.href = "{% url 'article:like_article' %}"}});
+                        }
+                     },
+                });
+
+
+
+            }
 </script>
+
+<script type="text/javascript" src='{% static "js/jquery.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/bootstrap.min.js" %}'></script>
+<script type="text/javascript" src="{% static 'js/json2.js' %}"></script>
+
+<script type="text/javascript">
+    $(function() {
+            var editor = editormd("reply-content", {
+                width : "100%",
+                height :140,
+                placeholder : "说两句吧...",
+                imageUpload: true,
+                imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL : "{% url 'article:blog_img_upload' %}",
+                onload: function(){console.log('onload', this); },
+                saveHTMLToTextarea : true,
+                emoji : true,
+                tex: true,
+                flowChart : true,
+                codeFold: true,
+                searchReplace: true,
+                htmlDecode: "style,script,iframe|on*",
+                taskList: true,
+                tocm: true,
+                flowChart: true,
+                sequenceDiagram: true,
+                path :  "{% static 'editor/lib/' %}",
+                toolbarIcons : function() {return ["bold","italic","quote","|","list-ul","list-ol","hr","|","link","code","code-block","table","|","clear","emoji"]},
+               });
+
+             });
+             function parent_comment(){
+              var content = $('#reply-content-body').val();
+              var cmdata = new Object();
+                     cmdata.comment_content = content;
+                     cmdata.comment_parent_id= "None";
+
+                   if(""==content){ alert("评论内容不能为空！");}
+                   else
+                    {
+
+                      $.ajax({
+
+                            url:  "{{article.get_url_path}}",
+                            type:"POST",
+                            dataType: "json",
+                            data: {"comment": JSON.stringify(cmdata)},
+                            success: function(data){
+                                  layer.msg(data.success);
+                                 if(data)
+                                {
+                                    layer.msg("successful,评论成功",{icon:1,time:200,end : function(){location.href = "{{article.get_url_path}}"}});
+                                }
+                               // $("#w3").html(data);
+                                },
+                            error: function(){alert("评论失败,请登录后评论！");},
+
+                            });
+                    }
+                    }
+</script>
+<script>
+    $("body").delegate(".reply","click",function(){
+
+         var divhtml = "";
+
+        if($(this).next().length>0){//判断出回复div已经存在,去除掉
+
+            $(this).next().remove();
+         }
+         else
+         {
+            //添加回复div
+            $(".children-reply-form").remove();//删除已存在的所有回复div
+            divhtml = '<div id="" class="children-reply-form " style="margin-top:20px;margin-bottom:65px;" action="." method="post"><div id="children-reply-content" class="form-group field-answer-reply-content required"><textarea id="children-reply-content-body" class="form-control" name="Answer[content]" aria-required="true"></textarea></div><div class="form-group" style="float:right; margin-bottom: 20px;"><button id="children-comment-submit" type="submit" class="btn btn-sm btn-primary">发送</button></div></div>';
+            };
+
+            $(this).after(divhtml);
+
+    $(function() {
+            var editor = editormd("children-reply-content", {
+                width : "100%",
+                height :140,
+                placeholder : "说两句吧...",
+                imageUpload: true,
+                imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL : "{% url 'article:blog_img_upload' %}",
+                onload: function(){console.log('onload', this); },
+                saveHTMLToTextarea : true,
+                emoji : true,
+                tex: true,
+                flowChart : true,
+                syncScrolling : "single",
+                codeFold : true,
+                searchReplace: true,
+                htmlDecode: "style,script,iframe|on*",
+                taskList: true,
+                tocm: true,
+                flowChart: true,
+                sequenceDiagram: true,
+                path :  "{% static 'editor/lib/' %}",
+                toolbarIcons : function() {return ["bold","italic","quote","|","list-ul","list-ol","hr","|","link","code","code-block","table","|","clear","emoji"]},
+               });
+             });
+
+         });
+
+          $('body').delegate('#children-comment-submit','click',function(){
+                    var content = $('#children-reply-content-body').val();
+                    var parent_id= $(this).parent().parent().parent().parent().attr("id");
+                    var cmdata = new Object();
+                     cmdata.comment_content = content;
+                     cmdata.comment_parent_id= parent_id;
+
+
+
+                    if(""==content){ alert("评论内容不能为空！");}
+                    else
+                    {
+
+                      $.ajax({
+
+                            url: "{{article.get_url_path}}",
+                            type: "POST",
+                            dataType: "json",
+                            data: {"comment": JSON.stringify(cmdata)},
+                            success: function(data){
+                                 layer.msg(data.success);
+                                 if(data){
+                                    layer.msg("successful,回复成功",{icon:1,time:200,end : function(){location.href = "{{article.get_url_path}}"}});
+                                     }
+
+                                },
+                               error:function(e){
+                                    layer.msg("name need to input, it is can be empty.");
+                                },
+
+                            });
+                     }
+                    }
+                   );
+
+</script>
+{% endwith %}
 {% endblock %}

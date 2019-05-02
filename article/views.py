@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import ArticleColumn, ArticlePost
-from .forms import ArticleColumnForm, ArticlePostForm
+from .models import ArticleColumn, ArticlePost, ArticleTag
+from .forms import ArticleColumnForm, ArticlePostForm, ArticleTagForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
@@ -12,6 +12,8 @@ import os
 import random
 from slugify import slugify
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import json
+from .models import CommentMulti
 
 # Create your views here.
 
@@ -73,6 +75,11 @@ def article_post(request):
                 new_article.author = request.user
                 new_article.column = request.user.article_column.get(id=request.POST['column_id'])
                 new_article.save()
+                tags = request.POST['tags']
+                if tags:
+                    for atag in json.loads(tags):
+                        tag = request.user.tag.get(tag=atag)
+                        new_article.article_tag.add(tag)
                 return HttpResponse("1")
             except:
                 return HttpResponse("2")
@@ -81,12 +88,14 @@ def article_post(request):
     else:
         article_post_form = ArticlePostForm()
         article_columns = request.user.article_column.all()
-        return render(request, "article/column/article_post.html", {"article_post_form": article_post_form, "article_columns": article_columns})
+        article_tags = request.user.tag.all()
+        return render(request, "article/column/article_post.html", {"article_post_form": article_post_form, "article_columns": article_columns, "article_tags": article_tags})
 
 
 @login_required(login_url='/account/login')
 def article_list(request):
     articles_list = ArticlePost.objects.filter(author=request.user)
+
     paginator = Paginator(articles_list, 10)
     page = request.GET.get('page')
     try:
@@ -143,6 +152,41 @@ def redit_article(request, article_id):
 
 @login_required(login_url='/account/login')
 @csrf_exempt
+def article_tag(request):
+    if request.method == "GET":
+        article_tags = ArticleTag.objects.filter(author=request.user)
+        article_tag_form = ArticleTagForm()
+        return render(request, "article/tag/tag_list.html", {"article_tags": article_tags, "article_tag_form": article_tag_form})
+    if request.method == "POST":
+        tag_post_form = ArticleTagForm(data=request.POST)
+        if tag_post_form.is_valid():
+            try:
+                new_tag = tag_post_form.save(commit=False)
+                new_tag.author = request.user
+                new_tag.save()
+                return HttpResponse("1")
+            except:
+                return HttpResponse("The data cannot be save.")
+        else:
+            return HttpResponse("Sorry, the form is not valid.")
+
+
+@login_required(login_url='/account/login')
+@require_POST
+@csrf_exempt
+def del_article_tag(request):
+    tag_id = request.POST['tag_id']
+    print(tag_id)
+    try:
+        tag = ArticleTag.objects.get(id=tag_id)
+        tag.delete()
+        return HttpResponse("1")
+    except:
+        return HttpResponse("2")
+
+
+@login_required(login_url='/account/login')
+@csrf_exempt
 def blog_img_upload(request):
     if request.method == "POST":
         data = request.FILES['editormd-image-file']
@@ -161,7 +205,7 @@ def blog_img_upload(request):
         width = int(width * rate)
         height = int(height * rate)
 
-        img.thumbnail((width, height), Image.ANTIALIAS)
+        #img.thumbnail((width, height), Image.ANTIALIAS)
 
         url = 'blogimg/' + slugify(request.user.username) + '-' + data.name
         print(url)
@@ -177,7 +221,14 @@ def blog_img_upload(request):
             print(name)
 
         try:
-            img.save(name)
+            file, ext = os.path.splitext(data.name)
+            # .lower()将字符串中所有大写字母转换为小写，只对ASKII编码有效，即A-Z，其他语言需用casefold转换大小写
+            print(ext.lower())
+            # 如果是gif图片，保存时需设定save_all=True将多帧保存，否则只保存第一帧
+            if ext.lower() == '.gif':
+                img.save(name, save_all=True)
+            else:
+                img.save(name)
             url = '/media' + name.split('media')[-1]
             print("url="+url)
             return JsonResponse({'success': 1, 'message': '成功', 'url': url})

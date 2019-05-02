@@ -1,6 +1,6 @@
 {% extends "article/base.html" %}
 {% load staticfiles %}
-{% block title %}article column{% endblock %}
+{% block title %}编辑文章{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'editor/css/style.css' %} ">
 <link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
@@ -61,7 +61,7 @@
                  });
              }
 </script>
-<script type="text/javascript" src="{% static 'editor/editormd.js' %}"></script>
+<script type="text/javascript" src="{% static 'editor/editormd.min.js' %}"></script>
 <script type="text/javascript">
     $(function() {
             var editor = editormd("editormd", {
