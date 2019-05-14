@@ -6,22 +6,22 @@
 
 {% block content %}
 <div class="row text-center vertical-middle-sm">
-    <h1>Login</h1>
-    <p>Input your username and password</p>
+    <h1>登录</h1>
+    <p>请输入帐号密码</p>
     <form class="form-horizontal" action="." method="post">{% csrf_token %}
         <!--{{form.as_p}}-->
         <div class="form-group">
-            <lable for="{{ form.username.id_for_label }}" class="col-md-5 control-label" style="color:red"><span class="glyphicon glyphicon-user"></span>Username</lable>
+            <lable for="{{ form.username.id_for_label }}" class="col-md-5 control-label" style="color:red"><span class="glyphicon glyphicon-user"></span>帐号</lable>
             <div class="col-md-6 text-left">{{form.username}}</div>
         </div>
         <div class="form-group">
-            <label for="{{ form.password.id_for_label }}" class="col-md-5 control-label" style="color:blue"><span class="glyphicon glyphicon-floppy-open"></span>Password</label>
+            <label for="{{ form.password.id_for_label }}" class="col-md-5 control-label" style="color:blue"><span class="glyphicon glyphicon-floppy-open"></span>密码</label>
             <div class="col-md-6 text-left">{{form.password}}</div>
         </div>
         <input type="submit" class="btn btn-primary btn-lg" value="Login">
     </form>
-    <p style="margin-top:10px">Forgot your password?<a href="{% url 'account:password_reset' %}">reset password</a> </p>
-    <p style="margin-top:10px">If you had not a username, <a href="{% url 'account:user_register' %}">Register to be a user</a>, please. </p>
+    <p style="margin-top:10px">如果忘记密码?请<a href="{% url 'account:password_reset' %}">重置密码</a> 。</p>
+    <p style="margin-top:10px">如果没有帐号，请<a href="{% url 'account:user_register' %}">注册</a>。</p>
 </div>
 {% endblock %}
 
